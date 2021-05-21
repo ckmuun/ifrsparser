@@ -6,7 +6,13 @@ echo "transforming files"
 # remove Umlauts
 sed -E 's/[ä]/ae/g ; s/[ü]/ue/g; s/[ö]/oe/g ; s/Ü/UE/g ; s/Ä/AE/g; s/Ö/OE/g; s/ß/ss/g; s/\.//g' result.txt >_a.txt
 
+# format common phrases
 sed -E 's/Mio €/MioEuro/g; s/in \s*%/inProzent/g; s/://g' _a.txt >_b.txt
+
+
+# rm trailing dashes from words
+sed -E 's/\w-//g; s/\w -//g' _b.txt > _c.txt
+
 
 # rm leading whitespace
 sed 's/^[ \t]*//' _b.txt >_bb.txt
