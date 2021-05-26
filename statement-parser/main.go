@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/emirpasic/gods/lists/singlylinkedlist"
 	"github.com/emirpasic/gods/maps/linkedhashmap"
 	"github.com/emirpasic/gods/sets/hashset"
 	"io/ioutil"
@@ -41,8 +42,60 @@ func main() {
 		indexedLines.Put(line, indices[index])
 	}
 
+	_ = mxOperation(lines)
+
 	// furhter process non-duplicate lines
 	writeLinesSliceToFile("processed.txt", lines)
+}
+
+func mxOperation(lines []string) []string {
+	// put lines into char matrix
+	rows := singlylinkedlist.New()
+
+	for _, line := range lines {
+		row := singlylinkedlist.New()
+		for _, char := range line {
+			row.Add(string(char))
+		}
+		rows.Add(row)
+	}
+
+	// go has no proper support for matrices. wow.
+	matrix := make([][]string, 8000)
+
+	// fill matrix
+	for rowIndex, line := range lines {
+
+		// todo determine longest line in file and use as length
+		row := make([]string, 450)
+
+		for colIndex, char := range line {
+
+			row[colIndex] = string(char)
+		}
+		matrix[rowIndex] = row
+	}
+
+	/*
+		for rowIndex, chars := range matrix  {
+
+			for colIndex, char := range chars {
+
+				if char != " " {
+					continue
+				}
+
+
+			}
+		}
+
+	*/
+
+	return lines
+
+}
+
+func insert() {
 
 }
 
