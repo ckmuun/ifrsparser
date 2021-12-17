@@ -3,6 +3,7 @@ package de.koware.gacc.parser.ifrsParsing;
 import de.koware.gacc.parser.pdfParsing.PreprocessedDocument;
 import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,22 +23,25 @@ public class IfrsStatementsParserSvc {
 
         PDFTextStripper textStripper = new PDFTextStripper();
 
+        //PDFTextStripperByArea textStripperByArea = new PDFTextStripperByArea();
+
         PDPageTree pages = document.getDocument().getPages();
 
         EnumMap<IfrsComponentType, Pattern[]> map = IfrsParsingConstants.ifrsComponentsRegexes();
 
-
         // page iteration, yes it starts from 1
-        for (int i = 0; i < pages.getCount(); i++) {
+        for (int i = 1; i <= pages.getCount(); i++) {
             LOGGER.info("processing page");
 
             textStripper.setStartPage(i);
-            textStripper.setEndPage(i+1);
+            textStripper.setEndPage(i);
+
             String pageText = textStripper
                     .getText(document.getDocument())
                     .toLowerCase();
 
-            LOGGER.info("###############");
+
+
             LOGGER.info("page text: {}", pageText);
             LOGGER.info("###############");
             Set<IfrsComponentType> detectedComponents = new HashSet<>();
@@ -52,7 +56,7 @@ public class IfrsStatementsParserSvc {
                 }
             }
 
-            IfrsPdfPage ifrsPdfPage = new IfrsPdfPage(pages.get(i), detectedComponents);
+            IfrsPdfPage ifrsPdfPage = new IfrsPdfPage(pages.get(i-1), detectedComponents);
             annotatedPages.add(ifrsPdfPage);
         }
 

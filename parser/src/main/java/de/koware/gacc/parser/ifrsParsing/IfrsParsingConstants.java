@@ -27,7 +27,7 @@ public class IfrsParsingConstants {
         });
 
         map.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?eigenkapital[-]?veraenderungsrechnung"),
+                Pattern.compile("(konzern)?[-]?eigenkapital[-]?ver[(ae)ä]nderungsrechnung"),
         });
 
 
