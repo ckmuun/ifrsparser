@@ -8,7 +8,7 @@ public class IfrsParsingConstants {
     private IfrsParsingConstants() {
     }
 
-    public static EnumMap<IfrsComponentType, Pattern[]> ifrsComponentsStringRep() {
+    public static EnumMap<IfrsComponentType, Pattern[]> ifrsComponentsRegexes() {
         EnumMap<IfrsComponentType, Pattern[]> map = new EnumMap<IfrsComponentType, Pattern[]>(IfrsComponentType.class);
 
         map.put(IfrsComponentType.BALANCE_SHEET, new Pattern[]{
