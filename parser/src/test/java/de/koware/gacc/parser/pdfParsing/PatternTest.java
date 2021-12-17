@@ -16,7 +16,7 @@ public class PatternTest {
     public void testPatternGuv() {
 
         Pattern pattern = IfrsParsingConstants
-                .ifrsComponentsStringRep()
+                .ifrsComponentsRegexes()
                 .get(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT)[0];
 
 
@@ -36,7 +36,7 @@ public class PatternTest {
     @Test
     public void testPatternOci() {
         Pattern pattern = IfrsParsingConstants
-                .ifrsComponentsStringRep()
+                .ifrsComponentsRegexes()
                 .get(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME)[0];
 
         String[] permutations = new String[]{
@@ -54,7 +54,7 @@ public class PatternTest {
     @Test
     public void testPatternCashflowStmt()  {
         Pattern pattern = IfrsParsingConstants
-                .ifrsComponentsStringRep()
+                .ifrsComponentsRegexes()
                 .get(IfrsComponentType.CASHFLOW_STATEMENT)[0];
 
         String[] permutations = new String[]{
@@ -74,7 +74,7 @@ public class PatternTest {
     public void testPatternBalanceSheet() {
 
         Pattern pattern = IfrsParsingConstants
-                .ifrsComponentsStringRep()
+                .ifrsComponentsRegexes()
                 .get(IfrsComponentType.BALANCE_SHEET)[0];
 
         String[] permutations = new String[]{
@@ -92,7 +92,7 @@ public class PatternTest {
     @Test
     public void testPatternEquityChanges() {
         Pattern pattern = IfrsParsingConstants
-                .ifrsComponentsStringRep()
+                .ifrsComponentsRegexes()
                 .get(IfrsComponentType.EQUITY_CHANGES_STATEMENT)[0];
 
         String[] permutations = new String[]{
