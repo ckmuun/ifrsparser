@@ -1,24 +1,36 @@
 package de.koware.gacc.parser.pdfParsing;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
+
+import org.apache.pdfbox.pdmodel.PDPage;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class PreprocessedDocument {
 
-    private final PDDocument document;
-
+    private final LinkedHashMap<PDPage, String> pageTexts;
     private String runningHead;
     private String footer;
 
-    public PreprocessedDocument(PDDocument document) {
-        this.document = document;
+    public PreprocessedDocument(LinkedHashMap<PDPage, String> pageTexts) {
+        this.pageTexts = pageTexts;
     }
 
-
-    public PDDocument getDocument() {
-        return document;
-    }
 
     public int getNumberOfPages() {
-        return this.document.getNumberOfPages();
+        return this.pageTexts.size();
+    }
+
+    public String getRunningHead() {
+        return runningHead;
+    }
+
+    public String getFooter() {
+        return footer;
+    }
+
+
+    public LinkedHashMap<PDPage, String> getPageTexts() {
+        return pageTexts;
     }
 }

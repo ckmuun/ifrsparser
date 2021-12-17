@@ -1,6 +1,7 @@
 package de.koware.gacc.parser.ifrsParsing;
 
 import de.koware.gacc.parser.pdfParsing.PreprocessedDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
@@ -25,38 +26,28 @@ public class IfrsStatementsParserSvc {
 
         //PDFTextStripperByArea textStripperByArea = new PDFTextStripperByArea();
 
-        PDPageTree pages = document.getDocument().getPages();
 
         EnumMap<IfrsComponentType, Pattern[]> map = IfrsParsingConstants.ifrsComponentsRegexes();
 
         // page iteration, yes it starts from 1
-        for (int i = 1; i <= pages.getCount(); i++) {
+        for (Map.Entry<PDPage, String> pageWithText : document.getPageTexts().entrySet()) {
             LOGGER.info("processing page");
 
-            textStripper.setStartPage(i);
-            textStripper.setEndPage(i);
-
-            String pageText = textStripper
-                    .getText(document.getDocument())
-                    .toLowerCase();
-
-
-
-            LOGGER.info("page text: {}", pageText);
+            LOGGER.info("page text: {}", pageWithText.getValue());
             LOGGER.info("###############");
             Set<IfrsComponentType> detectedComponents = new HashSet<>();
 
             // type detection iteration
             for (Map.Entry<IfrsComponentType, Pattern[]> entry : map.entrySet()) {
                 for (Pattern pattern : entry.getValue()) {
-                    if (pattern.matcher(pageText).find()) {
+                    if (pattern.matcher(pageWithText.getValue()).find()) {
                         LOGGER.info("found key: {}", entry.getKey());
                         detectedComponents.add(entry.getKey());
                     }
                 }
             }
 
-            IfrsPdfPage ifrsPdfPage = new IfrsPdfPage(pages.get(i-1), detectedComponents);
+            IfrsPdfPage ifrsPdfPage = new IfrsPdfPage(pageWithText.getKey(), detectedComponents);
             annotatedPages.add(ifrsPdfPage);
         }
 
