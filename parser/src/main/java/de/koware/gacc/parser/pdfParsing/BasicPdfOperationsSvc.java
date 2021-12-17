@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class PdfParserSvc {
+public class BasicPdfOperationsSvc {
+
+
 
 
     public PDDocument getPdocFromFile(String filepath) {

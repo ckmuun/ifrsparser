@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class PdfParserSvcTest {
+public class BasicPdfOperationsSvcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PdfParserSvcTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicPdfOperationsSvcTest.class);
 
 
     @Test
