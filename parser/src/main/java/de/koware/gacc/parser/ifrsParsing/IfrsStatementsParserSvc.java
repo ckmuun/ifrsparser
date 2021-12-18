@@ -59,14 +59,14 @@ public class IfrsStatementsParserSvc {
         for (Map.Entry<IfrsComponentType, Pattern[]> entry : IfrsParsingConstants.ifrsComponentsRegexes().entrySet()) {
             for (Pattern pattern : entry.getValue()) {
                 pattern.matcher(pageText).results().forEach(
-                            matchResult -> {
-                                LOGGER.info("found key: {} at: {}", entry.getKey(), matchResult.group());
-                                detectedComponents.put(
-                                        entry.getKey(),
-                                        detectedComponents.get(entry.getKey()) + 1
-                                );
-                            }
-                    );
+                        matchResult -> {
+                            LOGGER.info("found key: {} at: {}", entry.getKey(), matchResult.group());
+                            detectedComponents.put(
+                                    entry.getKey(),
+                                    detectedComponents.get(entry.getKey()) + 1
+                            );
+                        }
+                );
             }
         }
 
@@ -79,23 +79,27 @@ public class IfrsStatementsParserSvc {
         textStripper.setStartPage(i);
         textStripper.setEndPage(i);
 
-        String pageText = textStripper.getText(raw).toLowerCase();
+        String pageText = textStripper
+                .getText(raw)
+                .toLowerCase()
+                .replaceAll("\u00AD", "-"); // this does not cut it
+                //.replaceAll("\\p{C}", "");
 
 
         IfrsComponentType mostMentionedType = IfrsComponentType.NOP;
-        int mostMentions = -1;
-        int nextMostMentions = -1;
+        int mostMentions = 0;
+        int nextMostMentions = 0;
 
 
         for (Map.Entry<IfrsComponentType, Integer> entry : detectComponentsInPageTextString(pageText).entrySet()) {
-            if (mostMentions <= entry.getValue()) {
+            if (mostMentions < entry.getValue()) {
                 mostMentionedType = entry.getKey();
                 nextMostMentions = mostMentions;
 
                 mostMentions = entry.getValue();
                 continue;
             }
-            if (nextMostMentions <= entry.getValue()) {
+            if (nextMostMentions < entry.getValue()) {
                 nextMostMentions = entry.getValue();
             }
         }

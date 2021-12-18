@@ -26,14 +26,25 @@ public class IfrsStatementsParserSvcTest {
 
 
     @Test
-    public void testPdfCroppingToRelevantPages() throws IOException {
+    public void testPdfCroppingBasf() throws IOException {
 
-        PDDocument cropped = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+        PDDocument croppedBasf = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/basf_full_2020.pdf"
         )));
 
-        cropped.save("src/test/resources/basf_cropped_2020.pdf");
-        cropped.close();
+        croppedBasf.save("src/test/resources/basf_cropped_2020.pdf");
+        croppedBasf.close();
+    }
+
+    @Test
+    public void testCroppingDw() throws IOException {
+        PDDocument croppedDw = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+                "src/test/resources/dw_2020_full.pdf"
+        )));
+
+        croppedDw.save("src/test/resources/dw_cropped_2020.pdf");
+        croppedDw.close();
+
     }
 
     @Test

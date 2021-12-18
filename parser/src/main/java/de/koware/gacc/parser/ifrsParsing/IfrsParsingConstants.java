@@ -20,7 +20,7 @@ public class IfrsParsingConstants {
         });
 
         map.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung"),
+                Pattern.compile("((konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?(rechnung\\s*))|(konzern[\\s-_.]+gewinn[\\s-_.]+und[\\s-_.]+verlust[\\s-_.]+rechnung)"),
         });
 
         map.put(IfrsComponentType.CASHFLOW_STATEMENT, new Pattern[]{

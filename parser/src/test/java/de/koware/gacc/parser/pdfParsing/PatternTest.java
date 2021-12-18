@@ -12,10 +12,23 @@ public class PatternTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatternTest.class);
 
+    @Test
+    public void guvPatternTest() {
+        Pattern guvPattern = Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung");
+
+        assert guvPattern.matcher("KONZERN-GEWINN- UND VERLUSTRECHNUNG".toLowerCase()).find();
+
+        String guv = "konzern\u00ADgewinn\u00AD und verlustrechnung";
+        String guvRep = guv.replaceAll("\u00AD", "-"); // FIXME for whatever reason this does not replace anything
+        LOGGER.info("replaced: {}", guvRep);
+
+        assert guvPattern.matcher(guvRep).find();
+    }
+
 
     @Test
     public void bilanzPatternTest() {
-        Pattern bilanzPattern =Pattern.compile("bilanz\\s+");
+        Pattern bilanzPattern = Pattern.compile("bilanz\\s+");
 
         assert "bilanz ".matches(bilanzPattern.pattern());
         assert !"bilanziert".matches(bilanzPattern.pattern());
