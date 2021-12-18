@@ -16,7 +16,7 @@ public class IfrsParsingConstants {
          */
 
         map.put(IfrsComponentType.BALANCE_SHEET, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?(bilanz[^a-z]))|([^a-z]aktiva[^a-z])|([^a-z]passiva[^a-z])"),
+                Pattern.compile("((konzern)?[-]?\\s*(bilanz[^a-z]))|([^a-z]aktiva[^a-z])|([^a-z]passiva[^a-z])"),
         });
 
         map.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, new Pattern[]{
@@ -24,14 +24,14 @@ public class IfrsParsingConstants {
         });
 
         map.put(IfrsComponentType.CASHFLOW_STATEMENT, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?kapitalfluss[-]?rechnung")
+                Pattern.compile("((konzern)?[-]?kapitalfluss[-]?rechnung)|(kon[-]?\\s*zern[-]?\\s*kapital[-]?\\s*fluss[-]?\\s*rech[-]?\\s*nung)")
         });
         map.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?gesamtergebnis[-]?rechnung)|(im eigenkapital erfasste erträge und aufwendungen)"),
+                Pattern.compile("((konzern)?[-]?\\s*gesamtergebnis[-]?\\s*rechnung)|(im eigenkapital erfasste erträge und aufwendungen)|(kon[-\\s]*zern[-\\s]*gesamt[-\\s]*ergebnis[-\\s]*rech[-\\s]*nung)"),
         });
 
         map.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?eigenkapital[-]?ver[(ae)ä]nderungsrechnung)|(entwicklung des eigenkapitals)"),
+                Pattern.compile("((konzern)?[-]?\\s*eigenkapital[-]?\\s*ver[(ae)ä]nderungsrechnung)|(entwicklung des eigenkapitals)"),
         });
 
 
