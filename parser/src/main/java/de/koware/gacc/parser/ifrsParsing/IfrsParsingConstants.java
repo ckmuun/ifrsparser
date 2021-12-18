@@ -11,23 +11,27 @@ public class IfrsParsingConstants {
     public static EnumMap<IfrsComponentType, Pattern[]> ifrsComponentsRegexes() {
         EnumMap<IfrsComponentType, Pattern[]> map = new EnumMap<IfrsComponentType, Pattern[]>(IfrsComponentType.class);
 
+        /*
+            convention is one pattern per supported language
+         */
+
         map.put(IfrsComponentType.BALANCE_SHEET, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?bilanz"),
+                Pattern.compile("((konzern)?[-]?(bilanz[^a-z]))|([^a-z]aktiva[^a-z])|([^a-z]passiva[^a-z])"),
         });
 
         map.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung")
+                Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung"),
         });
 
         map.put(IfrsComponentType.CASHFLOW_STATEMENT, new Pattern[]{
                 Pattern.compile("(konzern)?[-]?kapitalfluss[-]?rechnung")
         });
         map.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?gesamtergebnis[-]?rechnung"),
+                Pattern.compile("((konzern)?[-]?gesamtergebnis[-]?rechnung)|(im eigenkapital erfasste erträge und aufwendungen)"),
         });
 
         map.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, new Pattern[]{
-                Pattern.compile("(konzern)?[-]?eigenkapital[-]?ver[(ae)ä]nderungsrechnung"),
+                Pattern.compile("((konzern)?[-]?eigenkapital[-]?ver[(ae)ä]nderungsrechnung)|(entwicklung des eigenkapitals)"),
         });
 
 

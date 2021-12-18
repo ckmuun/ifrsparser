@@ -14,6 +14,25 @@ public class PatternTest {
 
 
     @Test
+    public void bilanzPatternTest() {
+        Pattern bilanzPattern =Pattern.compile("bilanz\\s+");
+
+        assert "bilanz ".matches(bilanzPattern.pattern());
+        assert !"bilanziert".matches(bilanzPattern.pattern());
+
+        Pattern bilanzPattern1 = Pattern.compile("bilanz[^a-z]*");
+        assert "bilanz".matches(bilanzPattern1.pattern());
+        assert !"bilanziert".matches(bilanzPattern1.pattern());
+
+
+        Pattern fullPattern = Pattern.compile("(konzern)?[-]?(bilanz[^a-z])");
+        assert !"bilanziert".matches(fullPattern.pattern());
+
+        assert !fullPattern.matcher("bilanziert").find();
+
+    }
+
+    @Test
     public void yearPatternTest() {
         Pattern pattern = Pattern.compile("20(\\d{2})");
 
