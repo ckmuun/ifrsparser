@@ -19,7 +19,7 @@ public class PatternTest {
         assert guvPattern.matcher("KONZERN-GEWINN- UND VERLUSTRECHNUNG".toLowerCase()).find();
 
         String guv = "konzern\u00ADgewinn\u00AD und verlustrechnung";
-        String guvRep = guv.replaceAll("\u00AD", "-"); // FIXME for whatever reason this does not replace anything
+        String guvRep = guv.replaceAll("\u00AD", "-");
         LOGGER.info("replaced: {}", guvRep);
 
         assert guvPattern.matcher(guvRep).find();
