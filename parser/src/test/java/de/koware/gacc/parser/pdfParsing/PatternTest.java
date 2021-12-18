@@ -12,6 +12,26 @@ public class PatternTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatternTest.class);
 
+
+    @Test
+    public void testChapterSlidePatterns() {
+        String chapterSlide = "konzernabschluss\n" +
+                "142 konzernbilanz\n" +
+                "144 konzern-gewinn- und  \n" +
+                "verlustrechnung\n" +
+                "145 konzern-gesamtergebnis-\n" +
+                "rechnung\n" +
+                "146 konzern-kapitalflussrech-\n" +
+                "nung\n" +
+                "148 konzern-eigenkapital-\n" +
+                "veränderungsrechnung\n" +
+                "150 anhang zum konzern-\n" +
+                "abschluss\n" +
+                "141\n";
+
+
+    }
+
     @Test
     public void guvPatternTest() {
         Pattern guvPattern = Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung");
