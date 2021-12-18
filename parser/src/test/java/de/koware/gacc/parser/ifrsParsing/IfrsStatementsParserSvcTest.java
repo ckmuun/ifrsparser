@@ -24,6 +24,18 @@ public class IfrsStatementsParserSvcTest {
     @Autowired
     private BasicPdfOperationsSvc basicPdfOperationsSvc;
 
+
+    @Test
+    public void testPdfCroppingToRelevantPages() throws IOException {
+
+        PDDocument cropped = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+                "src/test/resources/basf_full_2020.pdf"
+        )));
+
+        cropped.save("src/test/resources/basf_cropped_2020.pdf");
+        cropped.close();
+    }
+
     @Test
     public void testAnnotateDocument() throws IOException {
 

@@ -12,6 +12,35 @@ public class PatternTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatternTest.class);
 
+
+    @Test
+    public void yearPatternTest() {
+        Pattern pattern = Pattern.compile("20(\\d{2})");
+
+        assert "2020".matches(pattern.pattern());
+        assert !"20211".matches(pattern.pattern());
+
+        Pattern complexPattern = Pattern.compile("(20(\\d{2}))|(1.(\\s)*Jan(uar)?(\\s)*31.(\\s)*Dez(ember)?)");
+
+        assert "dskafjaslkfd".matches(".*");
+        assert "\n\t\t".matches("\\s*");
+        assert "dskafjaslkfd\n\n".matches("([.\\s])*");
+
+
+        Pattern mediumPattern = Pattern.compile("1.(\\s)*Jan(uar)?");
+        assert "1.    Januar".matches(mediumPattern.pattern());
+        assert "1. Januar".matches(mediumPattern.pattern());
+        assert "1.Januar".matches(mediumPattern.pattern());
+        assert "1.     Jan".matches(mediumPattern.pattern());
+        assert "1. Jan".matches(mediumPattern.pattern());
+        assert "1.Jan".matches(mediumPattern.pattern());
+
+
+        assert "2021".matches(complexPattern.pattern());
+        assert "1. Jan 2020 \n bis 31. Dez 2021".matches(complexPattern.pattern());
+    }
+
+
     @Test
     public void testPatternGuv() {
 
@@ -52,7 +81,7 @@ public class PatternTest {
     }
 
     @Test
-    public void testPatternCashflowStmt()  {
+    public void testPatternCashflowStmt() {
         Pattern pattern = IfrsParsingConstants
                 .ifrsComponentsRegexes()
                 .get(IfrsComponentType.CASHFLOW_STATEMENT)[0];

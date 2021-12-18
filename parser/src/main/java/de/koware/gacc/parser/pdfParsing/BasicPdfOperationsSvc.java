@@ -6,6 +6,8 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import technology.tabula.ObjectExtractor;
+import technology.tabula.detectors.SpreadsheetDetectionAlgorithm;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,11 @@ public class BasicPdfOperationsSvc {
         PDFTextStripper textStripper = new PDFTextStripper();
 
         LinkedHashMap<PDPage, String> pageTexts = new LinkedHashMap<>(document.getNumberOfPages());
+
+        ObjectExtractor oe = new ObjectExtractor(document);
+        SpreadsheetDetectionAlgorithm sda = new SpreadsheetDetectionAlgorithm();
+
+
 
         // text stripper is 1-based
         for (int i = 1; i <= document.getPages().getCount(); i++) {
