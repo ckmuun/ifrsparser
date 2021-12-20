@@ -1,7 +1,5 @@
 package de.koware.gacc.parser.ifrsParsing;
 
-import de.koware.gacc.parser.pdfParsing.BasicPdfOperationsSvc;
-import de.koware.gacc.parser.pdfParsing.PreprocessedDocument;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,45 +17,65 @@ public class IfrsStatementsParserSvcTest {
 
 
     @Autowired
-    private IfrsStatementsParserSvc ifrsStatementsParserSvc;
+    private PdfIrfsCroppingSvc pdfIrfsCroppingSvc;
 
     @Autowired
-    private BasicPdfOperationsSvc basicPdfOperationsSvc;
+    private PdfPreprocessingSvc pdfPreprocessingSvc;
 
 
     @Test
     public void testPdfCroppingBasf() throws IOException {
 
-        PDDocument croppedBasf = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+        PDDocument croppedBasf = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/basf_full_2020.pdf"
         )));
 
         croppedBasf.save("src/test/resources/basf_cropped_2020.pdf");
+
+        assert 6 == croppedBasf.getNumberOfPages();
         croppedBasf.close();
     }
 
     @Test
     public void testCroppingDw() throws IOException {
-        PDDocument croppedDw = this.ifrsStatementsParserSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+        PDDocument croppedDw = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/dw_2020_full.pdf"
         )));
 
         croppedDw.save("src/test/resources/dw_cropped_2020.pdf");
+        assert 8 == croppedDw.getNumberOfPages();
         croppedDw.close();
 
     }
 
     @Test
-    public void testAnnotateDocument() throws IOException {
+    public void testCroppingTelekom() throws IOException {
+        PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+                "src/test/resources/d-telko_2020_full.pdf"
+        )));
 
-        PreprocessedDocument preprocessedDocument = basicPdfOperationsSvc.extractText(
-                PDDocument.load(new File("src/test/resources/adidas-cropped.pdf"))
-        );
-
-        IfrsPdfDocument ifrsPdfDocument = ifrsStatementsParserSvc.annotateDocument(preprocessedDocument);
-
-        assert null != ifrsPdfDocument;
-        assert 9 == ifrsPdfDocument.getPages().size();
-        assert 5 == ifrsPdfDocument.getPages().get(0).getTypesDetectedOnPage().size();
+        croppedDt.save("src/test/resources/d-telko_cropped_2020.pdf");
+        croppedDt.close();
     }
+
+    @Test
+    public void testCroppingBmw() throws IOException {
+        PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+                "src/test/resources/bmw_2020_full.pdf"
+        )));
+
+        croppedDt.save("src/test/resources/bmw_cropped_2020.pdf");
+        croppedDt.close();
+    }
+
+    @Test
+    public void testCroppingDeliveryH() throws IOException {
+        PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
+                "src/test/resources/delivery-hero.pdf"
+        )));
+
+        croppedDt.save("src/test/resources/dhero_cropped_2020.pdf");
+        croppedDt.close();
+    }
+
 }

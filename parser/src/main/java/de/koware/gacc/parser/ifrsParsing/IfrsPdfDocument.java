@@ -1,16 +1,13 @@
 package de.koware.gacc.parser.ifrsParsing;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+
 import java.util.List;
+import java.util.Map;
 
 public class IfrsPdfDocument {
+    private PDDocument pdf;
+    private Map<Integer, String> pageTexts;
 
-    private final List<IfrsPdfPage> pages;
 
-    public IfrsPdfDocument(List<IfrsPdfPage> pages) {
-        this.pages = pages;
-    }
-
-    public List<IfrsPdfPage> getPages() {
-        return pages;
-    }
 }

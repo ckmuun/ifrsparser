@@ -8,6 +8,12 @@ public class IfrsParsingConstants {
     private IfrsParsingConstants() {
     }
 
+    public static Pattern[] chapterSlideIndicators() {
+        return new Pattern[]{
+            Pattern.compile("kon[-]?\\s*zern[-]?\\s*ab[-]?\\s*schluss")
+        };
+    }
+
     public static EnumMap<IfrsComponentType, Pattern[]> ifrsComponentsRegexes() {
         EnumMap<IfrsComponentType, Pattern[]> map = new EnumMap<IfrsComponentType, Pattern[]>(IfrsComponentType.class);
 
@@ -20,18 +26,18 @@ public class IfrsParsingConstants {
         });
 
         map.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?(rechnung\\s*))|(konzern[\\s-_.]+gewinn[\\s-_.]+und[\\s-_.]+verlust[\\s-_.]+rechnung)"),
+                Pattern.compile("((konzern)?[-]?gewinn[-]?\\s*und[-]?\\s*verlust[-]?\\s*(rechnung\\s*))|(konzern[\\s-_.]+gewinn[\\s-_.]+und[\\s-_.]+verlust[\\s-_.]+rechnung)"),
         });
 
         map.put(IfrsComponentType.CASHFLOW_STATEMENT, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?kapitalfluss[-]?rechnung)|(kon[-]?\\s*zern[-]?\\s*kapital[-]?\\s*fluss[-]?\\s*rech[-]?\\s*nung)")
+                Pattern.compile("((konzern)?[-]?kapital\\s*fluss[-]?\\s*rech\\s*nung)|(kon[-]?\\s*zern[-]?\\s*kapital[-]?\\s*fluss[-]?\\s*rech[-]?\\s*nung)")
         });
         map.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, new Pattern[]{
                 Pattern.compile("((konzern)?[-]?\\s*gesamtergebnis[-]?\\s*rechnung)|(im eigenkapital erfasste erträge und aufwendungen)|(kon[-\\s]*zern[-\\s]*gesamt[-\\s]*ergebnis[-\\s]*rech[-\\s]*nung)"),
         });
 
         map.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, new Pattern[]{
-                Pattern.compile("((konzern)?[-]?\\s*eigenkapital[-]?\\s*ver[(ae)ä]nderungsrechnung)|(entwicklung des eigenkapitals)"),
+                Pattern.compile("((konzern)?[-]?\\s*eigenkapital[-]?\\s*ver[(ae)ä]nderungsrechnung)|(entwicklung\\s*des\\s*(konzern)?eigenkapitals)"),
         });
 
 
