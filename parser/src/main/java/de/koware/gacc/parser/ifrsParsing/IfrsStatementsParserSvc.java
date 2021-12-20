@@ -124,26 +124,45 @@ public class IfrsStatementsParserSvc {
             if (!entry.getValue().containsValue(0)) {
                 chapterSlideNr = entry.getKey();
                 LOGGER.info("found chapter slide nr: {}", chapterSlideNr);
-                // fixme for some reason execution just stops here
             }
         }
         LOGGER.info("now doing mention-based page insertion");
 
 
+        final HashMap<IfrsComponentType, List<Integer>> ifrsComponentsWithPages = new HashMap<>();
+
+        ifrsComponentsWithPages.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, new ArrayList<>());
+        ifrsComponentsWithPages.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, new ArrayList<>());
+        ifrsComponentsWithPages.put(IfrsComponentType.BALANCE_SHEET, new ArrayList<>());
+        ifrsComponentsWithPages.put(IfrsComponentType.CASHFLOW_STATEMENT, new ArrayList<>());
+        ifrsComponentsWithPages.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, new ArrayList<>());
+
+
         // step1 use the pages with the mentions
-        for (int offsetFromChaperSlide = 0; offsetFromChaperSlide < 20; offsetFromChaperSlide++) {
-                Tuple3<IfrsComponentType, Integer, Integer> pageAnalysis = getMentions(tfidf.get(offsetFromChaperSlide + chapterSlideNr));
-                int mostMentions = pageAnalysis.getT2();
-                int nextMostMentions = pageAnalysis.getT3();
+        int maxOffset = 15;
 
-                LOGGER.info("Page Nr: {} has mostMentions: {} and next mostMentions: {} and most mentioned type is: {}",
-                        offsetFromChaperSlide, mostMentions, nextMostMentions, pageAnalysis.getT1());
+        for (int offsetFromChaperSlide = 1; offsetFromChaperSlide < maxOffset; offsetFromChaperSlide++) {
+            Tuple3<IfrsComponentType, Integer, Integer> pageAnalysis = getMentions(tfidf.get(offsetFromChaperSlide + chapterSlideNr));
+            int mostMentions = pageAnalysis.getT2();
+            int nextMostMentions = pageAnalysis.getT3();
 
-                // standard case
-                if (mostMentions >= 2 && nextMostMentions <= 1) {
-                    LOGGER.info("adding page: {}", offsetFromChaperSlide+ chapterSlideNr);
-                    cropped.addPage(raw.getPage(offsetFromChaperSlide+ chapterSlideNr));
-                }
+            // TODO add text-to-digit-ratio filter
+            if (mostMentions == 0 && nextMostMentions == 0) {
+                maxOffset++;
+                continue;
+            }
+
+            LOGGER.info("Page Nr: {} has mostMentions: {} and next mostMentions: {} and most mentioned type is: {}",
+                    offsetFromChaperSlide, mostMentions, nextMostMentions, pageAnalysis.getT1());
+
+
+            if ((mostMentions >= 2 && nextMostMentions <= 1) || (mostMentions == 1 && ifrsComponentsWithPages.get(pageAnalysis.getT1()).size() == 0)) {
+                LOGGER.info("adding page: {}", offsetFromChaperSlide + chapterSlideNr);
+
+                ifrsComponentsWithPages.get(pageAnalysis.getT1()).add(offsetFromChaperSlide + chapterSlideNr);
+
+                cropped.addPage(raw.getPage(offsetFromChaperSlide + chapterSlideNr));
+            }
         }
 
         return cropped;
