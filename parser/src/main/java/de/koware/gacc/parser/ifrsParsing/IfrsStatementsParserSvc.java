@@ -106,7 +106,7 @@ public class IfrsStatementsParserSvc {
     }
 
     // the LinkedHashMap contains the page numbers with the keyword analysis results for every ifrs component type
-    private PDDocument determineIfrsStatementsPageCluster(LinkedHashMap<Integer, Map<IfrsComponentType, Integer>> tfidf, PDDocument raw) {
+    private PDDocument determineIfrsStatementsPageCluster(LinkedHashMap<Integer, Map<IfrsComponentType, Integer>> tfidf, PDDocument raw) throws IOException {
         LOGGER.info("selecting pages for the cropped document");
         PDDocument cropped = new PDDocument();
 
@@ -146,8 +146,8 @@ public class IfrsStatementsParserSvc {
             int mostMentions = pageAnalysis.getT2();
             int nextMostMentions = pageAnalysis.getT3();
 
-            // TODO add text-to-digit-ratio filter
-            if (mostMentions == 0 && nextMostMentions == 0) {
+            if ((mostMentions == 0 && nextMostMentions == 0)
+                    || getDigitTextCharThreshValue(chapterSlideNr + offsetFromChaperSlide + 1, raw)) {
                 maxOffset++;
                 continue;
             }
@@ -169,7 +169,12 @@ public class IfrsStatementsParserSvc {
     }
 
 
-    private void getDigitTextCharThreshValue(int i, String pageText) {
+    private boolean getDigitTextCharThreshValue(int pageIndex, PDDocument document) throws IOException {
+        PDFTextStripper textStripper = new PDFTextStripper();
+        textStripper.setStartPage(pageIndex);
+        textStripper.setEndPage(pageIndex);
+        String pageText = textStripper.getText(document);
+
         // second filter -- the ifrs component tables contain more digits than text
         int numberOfDigitChars = 0;
         int numberOfTextChars = 0;
@@ -183,9 +188,7 @@ public class IfrsStatementsParserSvc {
         LOGGER.info("number of text chars: {}", numberOfTextChars);
         LOGGER.info("number of digit chars: {}", numberOfDigitChars);
 
-        if (numberOfDigitChars * 15 >= numberOfTextChars) {
-            LOGGER.info("adding page no: {}", i);
-        }
+        return numberOfDigitChars * 20 <= numberOfTextChars;
     }
 
 
