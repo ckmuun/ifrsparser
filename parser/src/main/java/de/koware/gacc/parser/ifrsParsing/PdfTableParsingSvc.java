@@ -8,10 +8,7 @@ import technology.tabula.*;
 import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /*
@@ -73,6 +70,7 @@ public class PdfTableParsingSvc {
         int currentY = 0;
         int currentX = 0;
         StringBuilder currentLine = new StringBuilder();
+
         for (TextElement textElement : textElements) {
             Rectangle bounds = textElement.getBounds();
 
@@ -93,7 +91,7 @@ public class PdfTableParsingSvc {
                 LOGGER.info("appending padding space");
                 currentLine.append(' ');
                 currentX += 5;
-                distance -=5;
+                distance -= 5;
             }
 
 //            int temp = currentX;
@@ -106,8 +104,8 @@ public class PdfTableParsingSvc {
             currentLine.append(textElement.getText());
             currentX += bounds.width;
 
-
         }
+        lines.add(currentLine.toString());
         return lines;
     }
 
