@@ -11,6 +11,7 @@ import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.awt.Rectangle;
 import java.util.*;
+import java.util.regex.Pattern;
 
 
 /*
@@ -183,6 +184,7 @@ public class PdfTableParsingSvc {
             // track new line, add and reset if y changes
             if (bounds.y != currentY || currentY == 0) {
                 currentY = bounds.y;
+                currentLine.add(currentLineChunk);
                 lines.add(currentLine);
                 currentLine = new ArrayList<>();
                 currentLineChunk = new LineChunk(0, 0);
@@ -192,12 +194,12 @@ public class PdfTableParsingSvc {
             LOGGER.info("bounds X: {}", bounds.x);
             int distance = bounds.x - currentX;
             LOGGER.info("x distance: {}", distance);
-            if(distance >= 1) {
+            if (distance >= 1) {
                 LOGGER.info("creating new line chunk");
-                if(!currentLineChunk.getText().equals("")) {
+                if (!currentLineChunk.getText().equals("")) {
                     currentLine.add(currentLineChunk);
                 }
-                currentX = currentLineChunk.leftBound+currentLineChunk.width;
+                currentX = currentLineChunk.leftBound + currentLineChunk.width;
                 currentLineChunk = new LineChunk(bounds.x, bounds.y);
             }
 
@@ -206,6 +208,63 @@ public class PdfTableParsingSvc {
             currentX += distance;
         }
         return lines;
+    }
+
+    public String[][] parseTableFromLineChunks(List<List<LineChunk>> lineChunks) {
+
+        Pattern numerical = Pattern.compile("(-)?(\\[)?\\d+(])?([.,]?]\\d*)");
+
+        int maxChunksPerLine = 0;
+
+        List<Integer[]> chunkPositions = new ArrayList<>();
+
+        // step 0 get most chunks in a line
+        for (List<LineChunk> line : lineChunks) {
+            if (line.size() >= maxChunksPerLine) {
+                maxChunksPerLine = line.size();
+//                int[] brackets = new int[maxChunksPerLine];
+//                for(int i =1; i< line.size(); i++) {
+//
+//                    LineChunk currentChunk = line.get(i);
+//                    LineChunk previousChunk = line.get(i-1);
+//                    // differ right and left-alignged
+//                    if(Pattern.matches(numerical.pattern(), currentChunk.getText())) {
+//                        LOGGER.info("right-aligned numerical column");
+//                    }
+//
+//
+//                    brackets[i-1] = line.get(i).leftBound;
+//                }
+            }
+        }
+        LOGGER.info("max chunks per line: {}", maxChunksPerLine);
+
+        String[][] table = new String[lineChunks.size()][maxChunksPerLine];
+
+
+        for (int i = 0; i <= lineChunks.size() - 1; i++) {
+            String[] lineArr = new String[maxChunksPerLine];
+            List<LineChunk> currentLine = lineChunks.get(i);
+
+
+            // easy case, just add all chunks to the array
+            if(currentLine.size() == maxChunksPerLine) {
+                for(int y = 0; y <= maxChunksPerLine-1; y++) {
+                    lineArr[y] = currentLine.get(y).getText();
+                }
+                continue;
+            }
+
+            // complex case
+
+
+
+
+            // put line array into table matrix
+            table[i] = lineArr;
+        }
+
+        return table;
     }
 
     public List<String> parseTableLines(List<TextElement> textElements) {

@@ -119,6 +119,7 @@ public class TableParsingTest {
         List<TextElement> textElements = tabulaTs.getTextElements();
 
 
+
         Utils.sort(tabulaTs.getTextElements(), Rectangle.ILL_DEFINED_ORDER);
 
         List<List<LineChunk>> lineChunks = tableParsingSvc.parseLineChunks(textElements);
@@ -128,6 +129,12 @@ public class TableParsingTest {
                 System.out.println(lineChunk);
             }
         }
+
+        String[][] table = tableParsingSvc.parseTableFromLineChunks(lineChunks);
+
+        assert table.length == lineChunks.size();
+
+        System.out.println(table);
     }
     @Test
     public void testTabulaTableParsing() throws IOException {
