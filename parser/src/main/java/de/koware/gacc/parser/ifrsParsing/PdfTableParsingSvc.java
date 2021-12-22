@@ -216,8 +216,6 @@ public class PdfTableParsingSvc {
         int currentX = 0;
         StringBuilder currentLine = new StringBuilder();
 
-        Map<Integer, Integer> columnXs = new HashMap<>();
-        Map<Integer, Integer> columnXsPlusWidth = new HashMap<>();
 
         for (TextElement textElement : textElements) {
             Rectangle bounds = textElement.getBounds();
@@ -241,8 +239,6 @@ public class PdfTableParsingSvc {
             LOGGER.info("x distance: {}", distance);
             if (distance >= 1) {
                 currentLine.append('|');
-                columnXs.put(bounds.x, 1 + columnXs.getOrDefault(bounds.x, 0));
-                columnXsPlusWidth.put(bounds.x + bounds.width, 1 + columnXs.getOrDefault(bounds.x + bounds.width, 0));
             }
 
             while (distance >= 1) {
@@ -263,9 +259,6 @@ public class PdfTableParsingSvc {
             currentX += bounds.width;
 
         }
-        LOGGER.info("Column Xs : {}", columnXs);
-        LOGGER.info("Column Xs + width: {}", columnXsPlusWidth);
-
         lines.add(currentLine.toString());
         return lines;
     }
