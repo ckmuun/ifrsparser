@@ -4,6 +4,8 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 import technology.tabula.*;
 import technology.tabula.extractors.BasicExtractionAlgorithm;
 
@@ -63,7 +65,150 @@ public class PdfTableParsingSvc {
         return new IfrsPdfDocument();
     }
 
-    public List<String> parseTable(List<TextElement> textElements) {
+    public List<Integer> detectColums(List<TextElement> textElements) {
+
+        List<Integer> colums = new ArrayList<>();
+
+        for (TextElement textElement : textElements) {
+
+        }
+        return colums;
+    }
+
+
+    public List<List<TextElement>> creatTextElementLInes(List<TextElement> textElements) {
+        List<List<TextElement>> lines = new ArrayList<>();
+
+        int currentY = 0;
+        List<TextElement> currentLine = new ArrayList<>();
+        for (TextElement textElement : textElements) {
+            Rectangle bounds = textElement.getBounds();
+
+            // track new line, add and reset if y changes
+            if (bounds.y != currentY || currentY == 0) {
+                currentY = bounds.y;
+                lines.add(currentLine);
+                currentLine = new ArrayList<>();
+            }
+            currentLine.add(textElement);
+        }
+        lines.remove(0);
+        lines.add(currentLine);
+        return lines;
+    }
+
+
+    public List<List<Tuple2<Float, Float>>> getXPositionsOfTextElements(List<List<TextElement>> textElements) {
+        List<List<Tuple2<Float, Float>>> xPositions = new ArrayList<>();
+        List<Tuple2<Float, Float>> currentLineXPos = new ArrayList<>();
+
+        // iterate over whole document
+        for (List<TextElement> lineElements : textElements) {
+            int currentX = 0;
+
+            // iterate over one line
+            for (TextElement element : lineElements) {
+
+                int distance = element.getBounds().x - currentX;
+                if (distance >= 1) {
+                    currentLineXPos.add(
+                            Tuples.of(element.getLeft(), element.getRight())
+                    );
+                }
+                currentX = Math.round(element.getRight());
+            }
+            xPositions.add(currentLineXPos);
+            currentLineXPos = new ArrayList<>();
+        }
+
+        return xPositions;
+    }
+
+    // Tuple contains left and right positions of a text element
+    public Tuple2<List<Integer>, List<Integer>> getColumnSeparationPositions(List<List<Tuple2<Float, Float>>> xPositions, int sensitivity) {
+        List<Integer> leftBoundCols = new ArrayList<>();
+        List<Integer> rightBoundCols = new ArrayList<>();
+
+
+        // save how many lines contain a textelement with that float bound
+        HashMap<Integer, Integer> leftBoundCache = new HashMap<>();
+        HashMap<Integer, Integer> rightBoundCache = new HashMap<>();
+
+        // fill caches
+        for (List<Tuple2<Float, Float>> lineXPositions : xPositions) {
+
+            for (Tuple2<Float, Float> lrPositions : lineXPositions) {
+                int left = Math.round(lrPositions.getT1());
+                int right = Math.round(lrPositions.getT2());
+
+                // check how often it has already been recorded
+                int nrLeft = leftBoundCache.getOrDefault(left, 0);
+                nrLeft++;
+                int nrRight = rightBoundCache.getOrDefault(right, 0);
+                nrRight++;
+
+                // update the value and put it into the cache
+                leftBoundCache.put(left, nrLeft);
+                rightBoundCache.put(right, nrRight);
+            }
+        }
+        // analyze caches
+        leftBoundCache.forEach((x, nr) -> {
+            if (nr >= sensitivity) {
+                leftBoundCols.add(x);
+            }
+        });
+
+        rightBoundCache.forEach((x, nr) -> {
+            if (nr >= sensitivity) {
+                rightBoundCols.add(x);
+            }
+        });
+
+        return Tuples.of(leftBoundCols, rightBoundCols);
+    }
+
+    public List<List<LineChunk>> parseLineChunks(List<TextElement> textElements) {
+        int currentY = 0;
+        int currentX = 0;
+
+        List<List<LineChunk>> lines = new ArrayList<>();
+
+        List<LineChunk> currentLine = new ArrayList<>();
+        LineChunk currentLineChunk = new LineChunk(0, 0);
+
+        for (TextElement textElement : textElements) {
+            Rectangle bounds = textElement.getBounds();
+
+            // track new line, add and reset if y changes
+            if (bounds.y != currentY || currentY == 0) {
+                currentY = bounds.y;
+                lines.add(currentLine);
+                currentLine = new ArrayList<>();
+                currentLineChunk = new LineChunk(0, 0);
+                currentX = 0;
+            }
+            LOGGER.info("current X: {}", currentX);
+            LOGGER.info("bounds X: {}", bounds.x);
+            int distance = bounds.x - currentX;
+            LOGGER.info("x distance: {}", distance);
+            if(distance >= 1) {
+                LOGGER.info("creating new line chunk");
+                if(!currentLineChunk.getText().equals("")) {
+                    currentLine.add(currentLineChunk);
+                }
+                currentX = currentLineChunk.leftBound+currentLineChunk.width;
+                currentLineChunk = new LineChunk(bounds.x, bounds.y);
+            }
+
+            currentLineChunk.addText(textElement.getText(), bounds.width);
+            currentX += bounds.width;
+            currentX += distance;
+        }
+        return lines;
+    }
+
+    public List<String> parseTableLines(List<TextElement> textElements) {
         LOGGER.info("parsing tables");
         List<String> lines = new ArrayList<>();
 
@@ -71,8 +216,15 @@ public class PdfTableParsingSvc {
         int currentX = 0;
         StringBuilder currentLine = new StringBuilder();
 
+        Map<Integer, Integer> columnXs = new HashMap<>();
+        Map<Integer, Integer> columnXsPlusWidth = new HashMap<>();
+
         for (TextElement textElement : textElements) {
             Rectangle bounds = textElement.getBounds();
+
+            if (bounds.y <= 50) {
+                continue;
+            }
 
             // track new line, add and reset if y changes
             if (bounds.y != currentY || currentY == 0) {
@@ -87,7 +239,13 @@ public class PdfTableParsingSvc {
             LOGGER.info("current X : {} in line {}", currentX, currentLine.toString());
             LOGGER.info("Bound of next x: {}", bounds.x);
             LOGGER.info("x distance: {}", distance);
-            while (distance >= 0) {
+            if (distance >= 1) {
+                currentLine.append('|');
+                columnXs.put(bounds.x, 1 + columnXs.getOrDefault(bounds.x, 0));
+                columnXsPlusWidth.put(bounds.x + bounds.width, 1 + columnXs.getOrDefault(bounds.x + bounds.width, 0));
+            }
+
+            while (distance >= 1) {
                 LOGGER.info("appending padding space");
                 currentLine.append(' ');
                 currentX += 5;
@@ -105,6 +263,9 @@ public class PdfTableParsingSvc {
             currentX += bounds.width;
 
         }
+        LOGGER.info("Column Xs : {}", columnXs);
+        LOGGER.info("Column Xs + width: {}", columnXsPlusWidth);
+
         lines.add(currentLine.toString());
         return lines;
     }
