@@ -1,10 +1,14 @@
 package de.koware.gacc.parser.ifrsParsing;
 
+import java.util.UUID;
+
 public class LineChunk {
 
     final int leftBound;
     final int lowerBound;
     int width;
+
+    private final UUID id;
 
     private String text;
 
@@ -13,6 +17,16 @@ public class LineChunk {
         this.lowerBound = lowerBound;
         this.text = "";
         this.width = 0;
+        id = UUID.randomUUID();
+    }
+
+
+    public int getRightBound() {
+        return this.leftBound + this.width;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public void addText(String textToAdd, int widthOfText) {

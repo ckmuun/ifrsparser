@@ -216,7 +216,6 @@ public class PdfTableParsingSvc {
 
         int maxChunksPerLine = 0;
 
-        List<Integer[]> chunkPositions = new ArrayList<>();
 
         // step 0 get most chunks in a line
         for (List<LineChunk> line : lineChunks) {
@@ -237,7 +236,59 @@ public class PdfTableParsingSvc {
 //                }
             }
         }
+
+        // cartography
+        List<List<Integer>> chunkLeftXPositions = new ArrayList<>();
+        List<List<Integer>> chunkRightXPositions = new ArrayList<>();
+        HashMap<Integer, Integer> nrsLeft = new HashMap<>();
+        HashMap<Integer, Integer> nrsRight = new HashMap<>();
+        for (List<LineChunk> line : lineChunks) {
+
+            List<Integer> leftPositions = new ArrayList<>();
+            List<Integer> rightPositions = new ArrayList<>();
+
+            for (LineChunk chunk : line) {
+                leftPositions.add(chunk.leftBound);
+                nrsLeft.put(chunk.leftBound, nrsLeft.getOrDefault(
+                        chunk.leftBound,
+                        0
+                        )
+                                + 1
+                );
+                nrsRight.put(chunk.getRightBound(), nrsRight.getOrDefault(
+                        chunk.getRightBound(),
+                        0
+                        )
+                                + 1
+                );
+                rightPositions.add(chunk.leftBound + chunk.width);
+            }
+            chunkLeftXPositions.add(leftPositions);
+            chunkRightXPositions.add(rightPositions);
+        }
+
+        // detect column separations, then match with l/r list whether it's a left- or right-bound column
+        List<Integer> leftXCols = new ArrayList<>();
+        List<Integer> rightXcols = new ArrayList<>();
+
+
+        // analyze caches
+        nrsLeft.forEach((x, nr) -> {
+            if (nr >= 5) {
+                leftXCols.add(x);
+            }
+        });
+
+        nrsRight.forEach((x, nr) -> {
+            if (nr >= 5) {
+                rightXcols.add(x);
+            }
+        });
+
         LOGGER.info("max chunks per line: {}", maxChunksPerLine);
+        /*
+            TODO hier morgen weitermachen, left-aligned columsn und right-aligned columns werden besttimt
+         */
 
         String[][] table = new String[lineChunks.size()][maxChunksPerLine];
 
@@ -248,16 +299,14 @@ public class PdfTableParsingSvc {
 
 
             // easy case, just add all chunks to the array
-            if(currentLine.size() == maxChunksPerLine) {
-                for(int y = 0; y <= maxChunksPerLine-1; y++) {
+            if (currentLine.size() == maxChunksPerLine) {
+                for (int y = 0; y <= maxChunksPerLine - 1; y++) {
                     lineArr[y] = currentLine.get(y).getText();
                 }
                 continue;
             }
 
             // complex case
-
-
 
 
             // put line array into table matrix
