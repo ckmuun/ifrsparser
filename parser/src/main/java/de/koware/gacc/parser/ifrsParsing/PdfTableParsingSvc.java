@@ -1,6 +1,5 @@
 package de.koware.gacc.parser.ifrsParsing;
 
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import technology.tabula.*;
 import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -210,6 +210,27 @@ public class PdfTableParsingSvc {
         return lines;
     }
 
+    public LinkedHashMap<Integer, Integer> concatLhmToNewLhm(LinkedHashMap<Integer, Integer> a, LinkedHashMap<Integer, Integer> b) {
+
+        LinkedHashMap<Integer, Integer> concat = new LinkedHashMap<>();
+        for (Map.Entry<Integer, Integer> entryOfA : a.entrySet()) {
+            concat.put(entryOfA.getKey(), entryOfA.getValue());
+        }
+        for (Map.Entry<Integer, Integer> entryOfB : b.entrySet()) {
+            int valueOfA = concat.getOrDefault(entryOfB.getKey(), 0);
+            if(entryOfB.getValue() >= valueOfA+1) {
+                concat.put(entryOfB.getKey(), entryOfB.getValue());
+            }
+        }
+
+        return concat;
+    }
+
+    public static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K, V>> comparingByValueDesc() {
+        return (Comparator<Map.Entry<K, V>> & Serializable)
+                (c1, c2) -> c2.getValue().compareTo(c1.getValue());
+    }
+
     public String[][] parseTableFromLineChunks(List<List<LineChunk>> lineChunks) {
 
         Pattern numerical = Pattern.compile("(-)?(\\[)?\\d+(])?([.,]?]\\d*)");
@@ -240,28 +261,35 @@ public class PdfTableParsingSvc {
         // cartography
         List<List<Integer>> chunkLeftXPositions = new ArrayList<>();
         List<List<Integer>> chunkRightXPositions = new ArrayList<>();
-        HashMap<Integer, Integer> nrsLeft = new HashMap<>();
-        HashMap<Integer, Integer> nrsRight = new HashMap<>();
+        LinkedHashMap<Integer, Integer> nrsLeft = new LinkedHashMap<>();
+        LinkedHashMap<Integer, Integer> nrsRight = new LinkedHashMap<>();
         for (List<LineChunk> line : lineChunks) {
 
             List<Integer> leftPositions = new ArrayList<>();
             List<Integer> rightPositions = new ArrayList<>();
 
             for (LineChunk chunk : line) {
-                leftPositions.add(chunk.leftBound);
-                nrsLeft.put(chunk.leftBound, nrsLeft.getOrDefault(
-                        chunk.leftBound,
-                        0
-                        )
-                                + 1
+
+                int left = chunk.leftBound;
+                int right = chunk.getRightBound();
+
+                left += 10 - (left % 10);
+                right += 10 - (right % 10);
+
+                leftPositions.add(left);
+
+
+                nrsLeft.put(left, nrsLeft.getOrDefault(
+                        left, 0)
+                        + 1
                 );
-                nrsRight.put(chunk.getRightBound(), nrsRight.getOrDefault(
-                        chunk.getRightBound(),
-                        0
-                        )
-                                + 1
+
+                nrsRight.put(right, nrsRight.getOrDefault(
+                        right, 0)
+                        + 1
                 );
-                rightPositions.add(chunk.leftBound + chunk.width);
+
+                rightPositions.add(right);
             }
             chunkLeftXPositions.add(leftPositions);
             chunkRightXPositions.add(rightPositions);
@@ -271,24 +299,44 @@ public class PdfTableParsingSvc {
         List<Integer> leftXCols = new ArrayList<>();
         List<Integer> rightXcols = new ArrayList<>();
 
+        LinkedHashMap<Integer, Integer> allNrs = concatLhmToNewLhm(
+                nrsLeft,
+                nrsRight
+        );
+        List<Integer> cols = new ArrayList<>(maxChunksPerLine);
 
-        // analyze caches
-        nrsLeft.forEach((x, nr) -> {
-            if (nr >= 5) {
-                leftXCols.add(x);
-            }
-        });
 
-        nrsRight.forEach((x, nr) -> {
-            if (nr >= 5) {
-                rightXcols.add(x);
-            }
-        });
 
-        LOGGER.info("max chunks per line: {}", maxChunksPerLine);
-        /*
-            TODO hier morgen weitermachen, left-aligned columsn und right-aligned columns werden besttimt
-         */
+        allNrs.entrySet().stream()
+                .sorted(comparingByValueDesc())
+                .limit(maxChunksPerLine)
+                .forEach(entry -> cols.add(entry.getKey()));
+
+        Collections.sort(cols);
+
+//        // analyze caches
+//        nrsLeft.forEach((x, nr) -> {
+//            if (nr >= 10) {
+//                leftXCols.add(x);
+//            }
+//        });
+//
+//        nrsRight.forEach((x, nr) -> {
+//            if (nr >= 10) {
+//                rightXcols.add(x);
+//            }
+//        });
+//        Collections.sort(leftXCols);
+//        Collections.sort(rightXcols);
+//
+//        LOGGER.info("max chunks per line: {}", maxChunksPerLine);
+//
+//        // TODO unify leftX and rightX cols into one column list
+//
+//        //List<Integer> allXcols = new ArrayList<>(leftXCols.size() + rightXcols.size());
+//        //allXcols.addAll(leftXCols);
+//        //allXcols.addAll(rightXcols);
+//        //Collections.sort(allXcols);
 
         String[][] table = new String[lineChunks.size()][maxChunksPerLine];
 
@@ -297,16 +345,38 @@ public class PdfTableParsingSvc {
             String[] lineArr = new String[maxChunksPerLine];
             List<LineChunk> currentLine = lineChunks.get(i);
 
-
             // easy case, just add all chunks to the array
             if (currentLine.size() == maxChunksPerLine) {
                 for (int y = 0; y <= maxChunksPerLine - 1; y++) {
                     lineArr[y] = currentLine.get(y).getText();
+                    table[i] = lineArr;
                 }
                 continue;
             }
 
             // complex case
+            for (LineChunk chunk : currentLine) {
+
+                for (int k = 0; k <= cols.size()-2; k++) {
+                    int currentCol = cols.get(k);
+                    int nextCol = cols.get(k+1);
+
+                    // leftmost
+                    if( chunk.leftBound <= currentCol) {
+                        lineArr[k] = chunk.getText();
+                        break;
+                    }
+
+                    if(chunk.getRightBound() <= nextCol ) {
+                        lineArr[k+1] = chunk.getText();
+                        break;
+                    }
+
+                    if(chunk.getRightBound() >= nextCol && k== cols.size()-2) {
+                        lineArr[cols.size()-1] = chunk.getText();
+                    }
+                }
+            }
 
 
             // put line array into table matrix
