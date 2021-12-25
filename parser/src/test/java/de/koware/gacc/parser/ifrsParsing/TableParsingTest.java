@@ -38,7 +38,7 @@ public class TableParsingTest {
         List<TextElement> textElements = textStripper.getTextElements();
         Utils.sort(textStripper.getTextElements(), Rectangle.ILL_DEFINED_ORDER);
 
-        List<List<TextElement>> teLines = tableParsingSvc.creatTextElementLInes(textElements);
+        List<List<TextElement>> teLines = tableParsingSvc.creatTextElementLines(textElements);
 //        for (List<TextElement> teLine : teLines) {
 //            System.out.println(teLine);
 //        }
@@ -134,25 +134,26 @@ public class TableParsingTest {
 
         assert table.length == lineChunks.size();
 
-        System.out.println(table);
-    }
-    @Test
-    public void testTabulaTableParsing() throws IOException {
-        PreprocessedDocument prepdoc = new PreprocessedDocument();
-        prepdoc.setCroppedPdf(PDDocument.load(new File("src/test/resources/basf_cropped_2020.pdf")));
-        final HashMap<IfrsComponentType, List<Integer>> ifrsCompPageIndices = new HashMap<>(5);
-
-        // 1-based
-        ifrsCompPageIndices.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, Collections.singletonList(1));
-        ifrsCompPageIndices.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, Collections.singletonList(2));
-        ifrsCompPageIndices.put(IfrsComponentType.BALANCE_SHEET, Arrays.asList(3, 4));
-        ifrsCompPageIndices.put(IfrsComponentType.CASHFLOW_STATEMENT, Collections.singletonList(5));
-        ifrsCompPageIndices.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, Collections.singletonList(6));
-
-
-        prepdoc.setPageIndicesForIfrsComp(ifrsCompPageIndices);
-
-        IfrsPdfDocument ifrsPdfDocument = tableParsingSvc.process(prepdoc);
 
     }
+
+//    @Test
+//    public void testTabulaTableParsing() throws IOException {
+//        PreprocessedDocument prepdoc = new PreprocessedDocument();
+//        prepdoc.setCroppedPdf(PDDocument.load(new File("src/test/resources/basf_cropped_2020.pdf")));
+//        final HashMap<IfrsComponentType, List<Integer>> ifrsCompPageIndices = new HashMap<>(5);
+//
+//        // 1-based
+//        ifrsCompPageIndices.put(IfrsComponentType.PROFIT_AND_LOSS_STATEMENT, Collections.singletonList(1));
+//        ifrsCompPageIndices.put(IfrsComponentType.OTHER_COMPREHENSIVE_INCOME, Collections.singletonList(2));
+//        ifrsCompPageIndices.put(IfrsComponentType.BALANCE_SHEET, Arrays.asList(3, 4));
+//        ifrsCompPageIndices.put(IfrsComponentType.CASHFLOW_STATEMENT, Collections.singletonList(5));
+//        ifrsCompPageIndices.put(IfrsComponentType.EQUITY_CHANGES_STATEMENT, Collections.singletonList(6));
+//
+//
+//        prepdoc.setPageIndicesForIfrsComp(ifrsCompPageIndices);
+//
+//        IfrsPdfDocument ifrsPdfDocument = tableParsingSvc.process(prepdoc);
+//
+//    }
 }
