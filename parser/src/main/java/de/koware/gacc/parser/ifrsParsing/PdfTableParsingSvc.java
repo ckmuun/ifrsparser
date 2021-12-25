@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 import technology.tabula.*;
-import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.awt.Rectangle;
 import java.util.*;
@@ -243,47 +242,6 @@ public class PdfTableParsingSvc {
     }
 
 
-    @Deprecated
-    public IfrsPdfDocument tabulaBasedProcessing(PreprocessedDocument preprocessedDocument) {
-
-        BasicExtractionAlgorithm bea = new BasicExtractionAlgorithm();
-        ObjectExtractor oe = new ObjectExtractor(preprocessedDocument.getCroppedPdf());
-
-
-        final HashMap<IfrsComponentType, List<Table>> ifrsTables = new HashMap<>();
-
-        for (Map.Entry<IfrsComponentType, List<Integer>> ifrsCompsPageIndices : preprocessedDocument.getPageIndicesForIfrsComp().entrySet()) {
-            IfrsComponentType type = ifrsCompsPageIndices.getKey();
-
-            List<Table> tablesForIfrsComp = new ArrayList<>();
-            for (int pageindex : ifrsCompsPageIndices.getValue()) {
-
-                Page page = oe.extract(pageindex);
-                tablesForIfrsComp.addAll(bea.extract(page));
-            }
-
-            for (Table tables : tablesForIfrsComp) {
-                LOGGER.info("Table with {} rows and {} columns:", tables.getRowCount(), tables.getColCount());
-
-                List<List<RectangularTextContainer>> rows = tables.getRows();
-                String[][] table = new String[tables.getRowCount()][tables.getColCount()];
-
-                for (List<RectangularTextContainer> cells : rows) {
-
-                    for (RectangularTextContainer cell : cells) {
-                        System.out.print(cell.getText() + " | ");
-                    }
-
-                    System.out.println();
-                }
-            }
-
-            ifrsTables.put(type, tablesForIfrsComp);
-            System.out.println("########################################################################");
-        }
-
-        return new IfrsPdfDocument();
-    }
 
     @Deprecated
     public List<List<TextElement>> creatTextElementLines(List<TextElement> textElements) {

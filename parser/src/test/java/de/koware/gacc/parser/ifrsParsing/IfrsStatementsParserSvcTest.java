@@ -19,9 +19,6 @@ public class IfrsStatementsParserSvcTest {
     @Autowired
     private PdfIrfsCroppingSvc pdfIrfsCroppingSvc;
 
-    @Autowired
-    private PdfPreprocessingSvc pdfPreprocessingSvc;
-
 
     @Test
     public void testPdfCroppingBasf() throws IOException {
