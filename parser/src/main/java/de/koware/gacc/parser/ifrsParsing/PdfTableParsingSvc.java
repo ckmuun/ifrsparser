@@ -9,9 +9,7 @@ import technology.tabula.*;
 import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.awt.Rectangle;
-import java.io.Serializable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static de.koware.gacc.parser.Utils.comparingByValueDesc;
 

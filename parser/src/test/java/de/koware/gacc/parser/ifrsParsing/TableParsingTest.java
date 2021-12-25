@@ -25,7 +25,42 @@ public class TableParsingTest {
     private PdfTableParsingSvc tableParsingSvc;
 
 
+
     @Test
+    public void testLineChunkParsing() throws  IOException {
+        PDDocument document = PDDocument.load(new File("src/test/resources/dw_cropped_2020.pdf"));
+        //PDDocument document = PDDocument.load(new File("src/test/resources/adidas-cropped.pdf"));
+
+        TextStripper tabulaTs = new TextStripper(document, 1);
+
+
+        tabulaTs.setAddMoreFormatting(true);
+        tabulaTs.process();
+
+        List<TextElement> textElements = tabulaTs.getTextElements();
+
+
+
+        Utils.sort(tabulaTs.getTextElements(), Rectangle.ILL_DEFINED_ORDER);
+
+        List<List<LineChunk>> lineChunks = tableParsingSvc.parseLineChunks(textElements);
+
+        for(List<LineChunk> lines: lineChunks) {
+            for(LineChunk lineChunk: lines) {
+                System.out.println(lineChunk);
+            }
+        }
+
+        String[][] table = tableParsingSvc.parseTableFromLineChunks(lineChunks);
+
+        assert table.length == lineChunks.size();
+        assert table[0].length == 4;
+
+
+    }
+
+    @Test
+    @Deprecated
     public void lineAggTest() throws IOException {
 
         PDDocument document = PDDocument.load(new File("src/test/resources/dw_cropped_2020.pdf"));
@@ -77,6 +112,7 @@ public class TableParsingTest {
     }
 
     @Test
+    @Deprecated
     public void simpleParsingTest() throws IOException {
 
         //PDDocument document = PDDocument.load(new File("src/test/resources/basf_cropped_2020.pdf"));
@@ -105,37 +141,7 @@ public class TableParsingTest {
         }
     }
 
-    @Test
-    public void testLineChunkParsing() throws  IOException {
-        PDDocument document = PDDocument.load(new File("src/test/resources/dw_cropped_2020.pdf"));
-        //PDDocument document = PDDocument.load(new File("src/test/resources/adidas-cropped.pdf"));
 
-        TextStripper tabulaTs = new TextStripper(document, 1);
-
-
-        tabulaTs.setAddMoreFormatting(true);
-        tabulaTs.process();
-
-        List<TextElement> textElements = tabulaTs.getTextElements();
-
-
-
-        Utils.sort(tabulaTs.getTextElements(), Rectangle.ILL_DEFINED_ORDER);
-
-        List<List<LineChunk>> lineChunks = tableParsingSvc.parseLineChunks(textElements);
-
-        for(List<LineChunk> lines: lineChunks) {
-            for(LineChunk lineChunk: lines) {
-                System.out.println(lineChunk);
-            }
-        }
-
-        String[][] table = tableParsingSvc.parseTableFromLineChunks(lineChunks);
-
-        assert table.length == lineChunks.size();
-
-
-    }
 
 //    @Test
 //    public void testTabulaTableParsing() throws IOException {

@@ -227,11 +227,6 @@ public class PdfIrfsCroppingSvc {
     }
 
 
-    // elaborate method
-    public PreprocessedDocument annotateDocument(PreprocessedDocument document) {
-
-        return document;
-    }
 
 
 }
