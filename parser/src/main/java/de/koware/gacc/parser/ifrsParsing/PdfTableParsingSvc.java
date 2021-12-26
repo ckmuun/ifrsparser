@@ -1,5 +1,6 @@
 package de.koware.gacc.parser.ifrsParsing;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -8,13 +9,14 @@ import reactor.util.function.Tuples;
 import technology.tabula.*;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.*;
 
 import static de.koware.gacc.parser.Utils.comparingByValueDesc;
 
 
 /*
-    Proposal Currently only one type per page is supported
+    Proposal: Currently only one type per page is supported
     for horizontal-formatted two tables on one page, the method needs to be able to deal with extracting the same
     page two times.
  */
@@ -23,6 +25,62 @@ import static de.koware.gacc.parser.Utils.comparingByValueDesc;
 public class PdfTableParsingSvc {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfTableParsingSvc.class);
 
+
+    public List<IfrsComponent> parseTablesFromPdf(Tuple2<PDDocument, HashMap<Integer, IfrsComponentType>> documentHashMapTuple2) {
+        List<IfrsComponent> ifrsComponents = new ArrayList<>();
+
+        HashMap<IfrsComponentType, List<Integer>> ifrsCompPages = invertHm(documentHashMapTuple2.getT2());
+
+        TextStripper tabulaTs = null;
+        try {
+
+            for (Map.Entry<IfrsComponentType, List<Integer>> entry : ifrsCompPages.entrySet()) {
+                List<String[][]> componentTables = new ArrayList<>();
+                for (int i = 0; i <= entry.getValue().size() - 1; i++) {
+
+                    tabulaTs = new TextStripper(documentHashMapTuple2.getT1(), entry.getValue().get(i));
+
+                    tabulaTs.setAddMoreFormatting(true);
+                    tabulaTs.process();
+
+                    List<TextElement> textElements = tabulaTs.getTextElements();
+                    LOGGER.info("number of text elements on page {}, is {}", entry.getValue().get(i), textElements.size());
+
+                    Utils.sort(tabulaTs.getTextElements(), technology.tabula.Rectangle.ILL_DEFINED_ORDER);
+
+                    List<List<LineChunk>> lineChunks = parseLineChunks(textElements);
+                    String[][] table = parseTableFromLineChunks(lineChunks);
+                    componentTables.add(table);
+                }
+                ifrsComponents.add(new IfrsComponent(entry.getKey(), componentTables));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return ifrsComponents;
+    }
+
+    private HashMap<IfrsComponentType, List<Integer>> invertHm(HashMap<Integer, IfrsComponentType> orgMapping) {
+        HashMap<IfrsComponentType, List<Integer>> inverted = new HashMap<>();
+
+        for (Map.Entry<Integer, IfrsComponentType> entry : orgMapping.entrySet()) {
+            if (null == inverted.get(entry.getValue())) {
+                List<Integer> pagenrs = new ArrayList<>();
+                pagenrs.add(entry.getKey());
+                inverted.put(entry.getValue(), pagenrs);
+                continue;
+            }
+
+            List<Integer> pagenrs = inverted.get(entry.getValue());
+            pagenrs.add(entry.getKey());
+            inverted.put(entry.getValue(), pagenrs);
+        }
+
+        return inverted;
+    }
 
     public List<List<LineChunk>> parseLineChunks(List<TextElement> textElements) {
         int currentY = 0;
@@ -65,7 +123,7 @@ public class PdfTableParsingSvc {
         return lines;
     }
 
-    public LinkedHashMap<Integer, Integer> concatLhmToNewLhm(LinkedHashMap<Integer, Integer> a, LinkedHashMap<Integer, Integer> b) {
+    private LinkedHashMap<Integer, Integer> concatLhmToNewLhm(LinkedHashMap<Integer, Integer> a, LinkedHashMap<Integer, Integer> b) {
 
         LinkedHashMap<Integer, Integer> concat = new LinkedHashMap<>();
         for (Map.Entry<Integer, Integer> entryOfA : a.entrySet()) {
@@ -240,7 +298,6 @@ public class PdfTableParsingSvc {
         lines.add(currentLine.toString());
         return lines;
     }
-
 
 
     @Deprecated

@@ -5,6 +5,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
@@ -18,11 +19,12 @@ public class PdfIrfsCroppingSvc {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfIrfsCroppingSvc.class);
 
     // document pruning method
-    public PDDocument extractIfrsRelevantPages(PDDocument raw) throws IOException {
+    public Tuple2<PDDocument,HashMap<Integer, IfrsComponentType>> extractIfrsRelevantPages(PDDocument raw) {
 
         EnumMap<IfrsComponentType, Pattern[]> map = IfrsParsingConstants.ifrsComponentsRegexes();
 
-        PDFTextStripper textStripper = new PDFTextStripper();
+        try {
+            PDFTextStripper textStripper = new PDFTextStripper();
 
         // page nr + Tuple3 with most-mentioned type, no. of mentions for type, difference to next-often mentioned
         LinkedHashMap<Integer, Map<IfrsComponentType, Integer>> tfIdfReport = new LinkedHashMap<>();
@@ -39,6 +41,11 @@ public class PdfIrfsCroppingSvc {
                 pageTexts,
                 raw
         );
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     private String getPageText(int pageIndex, PDDocument document) throws IOException {
@@ -105,7 +112,7 @@ public class PdfIrfsCroppingSvc {
     }
 
     // the LinkedHashMap contains the page numbers with the keyword analysis results for every ifrs component type
-    private PDDocument determineIfrsStatementsPageCluster(LinkedHashMap<Integer, Map<IfrsComponentType, Integer>> tfidf, LinkedHashMap<Integer, String> pageTexts, PDDocument raw) throws IOException {
+    private Tuple2<PDDocument, HashMap<Integer, IfrsComponentType>> determineIfrsStatementsPageCluster(LinkedHashMap<Integer, Map<IfrsComponentType, Integer>> tfidf, LinkedHashMap<Integer, String> pageTexts, PDDocument raw) throws IOException {
         LOGGER.info("selecting pages for the cropped document");
         PDDocument cropped = new PDDocument();
 
@@ -171,6 +178,9 @@ public class PdfIrfsCroppingSvc {
         // step1 use the pages with the mentions
         int maxOffset = 15;
 
+        final HashMap<Integer, IfrsComponentType> irfsCompOnPage = new HashMap<>();
+        int croppedPageCounter = 0;
+
         for (int offsetFromChaperSlide = 1; offsetFromChaperSlide < maxOffset; offsetFromChaperSlide++) {
             Tuple3<IfrsComponentType, Integer, Integer> pageAnalysis = getMentions(tfidf.get(offsetFromChaperSlide + chapterSlideNr));
             int mostMentions = pageAnalysis.getT2();
@@ -193,10 +203,17 @@ public class PdfIrfsCroppingSvc {
                 ifrsComponentsWithPages.get(pageAnalysis.getT1()).add(offsetFromChaperSlide + chapterSlideNr);
 
                 cropped.addPage(raw.getPage(offsetFromChaperSlide + chapterSlideNr));
+                croppedPageCounter++;
+                irfsCompOnPage.put(croppedPageCounter, pageAnalysis.getT1());
+
             }
         }
 
-        return cropped;
+        /*
+            TODO return tuple2 with PDF document and IfRS/PageINdex hashmap
+         */
+
+        return Tuples.of(cropped, irfsCompOnPage);
     }
 
     private boolean containsAtLeastOneGreaterZeroValue(Collection<Integer> values) {

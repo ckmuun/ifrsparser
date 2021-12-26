@@ -25,7 +25,7 @@ public class IfrsStatementsParserSvcTest {
 
         PDDocument croppedBasf = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/basf_full_2020.pdf"
-        )));
+        ))).getT1();
 
         croppedBasf.save("src/test/resources/basf_cropped_2020.pdf");
 
@@ -37,7 +37,7 @@ public class IfrsStatementsParserSvcTest {
     public void testCroppingDw() throws IOException {
         PDDocument croppedDw = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/dw_2020_full.pdf"
-        )));
+        ))).getT1();
 
         croppedDw.save("src/test/resources/dw_cropped_2020.pdf");
         assert 8 == croppedDw.getNumberOfPages();
@@ -49,7 +49,7 @@ public class IfrsStatementsParserSvcTest {
     public void testCroppingTelekom() throws IOException {
         PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/d-telko_2020_full.pdf"
-        )));
+        ))).getT1();
 
         croppedDt.save("src/test/resources/d-telko_cropped_2020.pdf");
         croppedDt.close();
@@ -59,7 +59,7 @@ public class IfrsStatementsParserSvcTest {
     public void testCroppingBmw() throws IOException {
         PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/bmw_2020_full.pdf"
-        )));
+        ))).getT1();
 
         croppedDt.save("src/test/resources/bmw_cropped_2020.pdf");
         croppedDt.close();
@@ -69,7 +69,7 @@ public class IfrsStatementsParserSvcTest {
     public void testCroppingDeliveryH() throws IOException {
         PDDocument croppedDt = this.pdfIrfsCroppingSvc.extractIfrsRelevantPages(PDDocument.load(new File(
                 "src/test/resources/delivery-hero.pdf"
-        )));
+        ))).getT1();
 
         croppedDt.save("src/test/resources/dhero_cropped_2020.pdf");
         croppedDt.close();

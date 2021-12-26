@@ -57,8 +57,4 @@ public class PdfPreprocessingSvcTest {
 
     }
 
-    @Test
-    public void testPageSplit() {
-
-    }
 }
