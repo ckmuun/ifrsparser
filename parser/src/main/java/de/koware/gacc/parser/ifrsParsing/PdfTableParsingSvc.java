@@ -21,6 +21,12 @@ import static de.koware.gacc.parser.Utils.comparingByValueDesc;
     page two times.
  */
 
+ /*
+    TODO: Ausnahmeregel für erste Spalte, die die eingerückten Textteile nach links zieht.
+
+    TODO: Whitespace-Grid basierter Detektionsalgorithmus
+ */
+
 @Service
 public class PdfTableParsingSvc {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfTableParsingSvc.class);
