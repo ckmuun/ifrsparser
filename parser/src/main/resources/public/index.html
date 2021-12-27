@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Simple accounting statements parser</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body id="drop-area">
+<noscript>
+    <h2>JavaScript must be enabled</h2>
+</noscript>
+
+<div class="upload-container">
+    <div class="upload-container">
+        <div class="upload-header">
+            <h2>Simple accounting statements parser PDF to XLSX</h2>
+        </div>
+        <div class="upload-content">
+            <h3>Select PDF File to upload here</h3>
+            <form id="fileUploadForm" name="fileUpload">
+                <input id="fileUploadFormInput" type="file" name="file" formenctype="multipart/form-data" formmethod="post" class="file-input" multiple required>
+                <button type="submit" class="primary submit-button">Upload File</button>
+            </form>
+            <div class="upload-response">
+                <div id="fileUploadError"></div>
+                <div id="fileUploadSuccess"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
