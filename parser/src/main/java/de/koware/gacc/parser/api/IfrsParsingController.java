@@ -32,7 +32,7 @@ public class IfrsParsingController {
     }
 
     @PostMapping("/parse-ifrs")
-    public Mono<ResponseEntity<Resource>> convertToXlsx(@RequestParam ("files") MultipartFile file) {
+    public Mono<ResponseEntity<Resource>> convertToXlsx(@RequestPart ("file") FilePart file) {
 
 
         LOGGER.info("file received");

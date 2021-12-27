@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
@@ -36,12 +37,13 @@ public class ParsingSvc {
     }
 
 
-    public Mono<XSSFWorkbook> parse(Mono<MultipartFile> file) {
+    public Mono<XSSFWorkbook> parse(Mono<FilePart> file) {
 
         LOGGER.info("parsing filePart");
         return file
-                //.flatMap(filePart -> DataBufferUtils.join(filePart.content()))
+                .flatMap(filePart -> DataBufferUtils.join(filePart.content()))
                 .map(this::load)
+                //.map(this::load)
                 .map(croppingSvc::extractIfrsRelevantPages)
                 .map(tableParsingSvc::parseTablesFromPdf)
                 .map(tableToXslxSvc::convertStringTableToXslx);
@@ -52,6 +54,14 @@ public class ParsingSvc {
     private PDDocument load(MultipartFile mpFile) {
         try {
             return PDDocument.load(mpFile.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new PDDocument();
+        }
+    }
+    private PDDocument load(DataBuffer dataBuffer) {
+        try {
+            return PDDocument.load(dataBuffer.asInputStream());
         } catch (IOException e) {
             e.printStackTrace();
             return new PDDocument();

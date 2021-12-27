@@ -8,15 +8,11 @@ body {
     margin: 0;
     padding: 0;
     font-weight: 400;
-    font-family: "Monospaced", Monospaced, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 1rem;
     line-height: 1.58;
     color: #333;
-    background-color: #f4f4f4
-}
-
-body.highlight {
-    background-color: cadetblue;
+    background-color: #f4f4f4;
 }
 
 body:before {
@@ -25,7 +21,7 @@ body:before {
     position: absolute;
     top: 0;
     left: 0;
-    background: darkcyan;
+    background: #128ff2;
     content: "";
     z-index: 0;
 }
@@ -36,7 +32,8 @@ body:before {
     clear: both;
 }
 
-h1,h2,h3,h4,h5,h6 {
+
+h1, h2, h3, h4, h5, h6 {
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -46,7 +43,7 @@ h1 {
 }
 
 a {
-    color: blue;
+    color: #128ff2;
 }
 
 button {
@@ -65,16 +62,17 @@ button {
 }
 
 button.primary {
-    background-color: darkred;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.12);
-    color:  black;
+    background-color: #128ff2;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+    color: #fff;
 }
+
 input {
     font-size: 1rem;
 }
 
 input[type="file"] {
-    border: 1px solid rebeccapurple;
+    border: 1px solid #128ff2;
     padding: 6px;
     max-width: 100%;
 }
@@ -85,40 +83,47 @@ input[type="file"] {
 
 .submit-btn {
     display: block;
-    margin-top: 5px;
-    margin-left: 0px;
-    min-width: 200px;
-
+    margin-top: 15px;
+    min-width: 100px;
 }
 
-@media screen and (min-width: 500px){
+@media screen and (min-width: 500px) {
     .file-input {
         width: calc(100% - 115px);
     }
 
     .submit-btn {
         display: inline-block;
-        margin-top: 5px;
-        margin-left: 0px;
+        margin-top: 0;
+        margin-left: 10px;
     }
 }
+
+
 .upload-container {
-    max-width: 1024px;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: white;
-    box-shadow: 0 1px 11px rgba(0,0,0,0.27);
-    margin-top: 60px;
-    min-height: 300px;
-    position: relative;
-    padding: 20px;
+      max-width: 750px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #fff;
+      box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+      margin-top: 60px;
+      min-height: 400px;
+      position: relative;
+      padding: 20px;
 }
+
 .upload-header {
     border-bottom: 1px solid #ececec;
 }
 
 .upload-header h2 {
     font-weight: 500;
+}
+
+.single-upload {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e8e8e8;
 }
 
 .upload-response {
