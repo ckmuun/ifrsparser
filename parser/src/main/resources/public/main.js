@@ -11,47 +11,88 @@ var multipleFileUploadError = document.querySelector('#multipleFileUploadError')
 var multipleFileUploadSuccess = document.querySelector('#multipleFileUploadSuccess');
 
 
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
 function uploadSingleFile(file) {
     var formData = new FormData();
     formData.append("file", file);
 
     var xhr = new XMLHttpRequest();
+    xhr.responseType = "blob"
     xhr.open("POST", "/api/v1/parse-ifrs");
 
-    xhr.onload = function() {
+    xhr.onload = function () {
         console.log(xhr.responseText);
-        const response = JSON.parse(xhr.responseText);
-        if(xhr.status == 200) {
+        //  const response = JSON.parse(xhr.responseText);
+        if (xhr.status == 200) {
             singleFileUploadError.style.display = "none";
-            singleFileUploadSuccess.innerHTML = "<p>File Uploaded Successfully.</p><p>DownloadUrl : <a href='" + response.fileDownloadUri + "' target='_blank'>" + response.fileDownloadUri + "</a></p>";
+            singleFileUploadSuccess.innerHTML = "<p>File Uploaded Successfully.</p>"
             singleFileUploadSuccess.style.display = "block";
+
+          //  download("parsed.xlsx", xhr.response)
+            _html5Saver(xhr.responseXML, 'parsed1.xlsx')
+
         } else {
             singleFileUploadSuccess.style.display = "none";
-            singleFileUploadError.innerHTML = (response && response.message) || "Some Error Occurred";
+            //           singleFileUploadError.innerHTML = (response && response.message) || "Some Error Occurred";
         }
     }
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var content = xhr.response;
+            _html5Saver(content, 'parsed.xlsx');
+        }
+    };
+
 
     xhr.send(formData);
 }
 
+
+function _html5Saver(blob, fileName) {
+    // to emulate click action
+    // because we cannot save directly to client's computer due to security constraints
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    var url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+
+    document.body.removeChild(a);
+}
+
+
 function uploadMultipleFiles(files) {
     var formData = new FormData();
-    for(var index = 0; index < files.length; index++) {
+    for (var index = 0; index < files.length; index++) {
         formData.append("files", files[index]);
     }
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/v1/parse-ifrs");
 
-    xhr.onload = function() {
+    xhr.onload = function () {
         console.log(xhr.responseText);
         var response = JSON.parse(xhr.responseText);
-        if(xhr.status == 200) {
+        if (xhr.status == 200) {
             multipleFileUploadError.style.display = "none";
             var content = "<p>All Files Uploaded Successfully</p>";
-            for(var i = 0; i < response.length; i++) {
-                content += "<p>DownloadUrl : <a href='" + response[i].fileDownloadUri + "' target='_blank'>" + response[i].fileDownloadUri + "</a></p>";
-            }
+            // for(var i = 0; i < response.length; i++) {
+            //     content += "<p>DownloadUrl : <a href='" + response[i].fileDownloadUri + "' target='_blank'>" + response[i].fileDownloadUri + "</a></p>";
+            // }
             multipleFileUploadSuccess.innerHTML = content;
             multipleFileUploadSuccess.style.display = "block";
         } else {
@@ -63,9 +104,9 @@ function uploadMultipleFiles(files) {
     xhr.send(formData);
 }
 
-singleUploadForm.addEventListener('submit', function(event){
+singleUploadForm.addEventListener('submit', function (event) {
     var files = singleFileUploadInput.files;
-    if(files.length === 0) {
+    if (files.length === 0) {
         singleFileUploadError.innerHTML = "Please select a file";
         singleFileUploadError.style.display = "block";
     }
@@ -74,9 +115,9 @@ singleUploadForm.addEventListener('submit', function(event){
 }, true);
 
 
-multipleUploadForm.addEventListener('submit', function(event){
+multipleUploadForm.addEventListener('submit', function (event) {
     var files = multipleFileUploadInput.files;
-    if(files.length === 0) {
+    if (files.length === 0) {
         multipleFileUploadError.innerHTML = "Please select at least one file";
         multipleFileUploadError.style.display = "block";
     }

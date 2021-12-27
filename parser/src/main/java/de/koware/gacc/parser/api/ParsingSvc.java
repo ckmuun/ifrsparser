@@ -43,10 +43,15 @@ public class ParsingSvc {
         return file
                 .flatMap(filePart -> DataBufferUtils.join(filePart.content()))
                 .map(this::load)
+                .doOnNext(a ->LOGGER.info("loaded document"))
                 //.map(this::load)
                 .map(croppingSvc::extractIfrsRelevantPages)
+                .doOnNext(a ->LOGGER.info("extracted relevant pages"))
                 .map(tableParsingSvc::parseTablesFromPdf)
-                .map(tableToXslxSvc::convertStringTableToXslx);
+                .doOnNext(a ->LOGGER.info("parsed tables"))
+                .map(tableToXslxSvc::convertStringTableToXslx)
+                .doOnNext(a ->LOGGER.info("converted to xlsx"));
+
 
     }
 
