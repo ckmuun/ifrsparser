@@ -9,7 +9,7 @@ var fileUploadSuccess = document.querySelector('#fileUploadSuccess')
 function uploadFile(file) {
     console.log("uploading file")
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("files", file);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/v1/parse-ifrs")
