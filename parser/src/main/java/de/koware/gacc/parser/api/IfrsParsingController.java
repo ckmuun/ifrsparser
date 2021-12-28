@@ -80,39 +80,16 @@ public class IfrsParsingController {
                         return new ResponseEntity<Resource>(new ByteArrayResource(new byte[0]), HttpStatus.INTERNAL_SERVER_ERROR);
                     }
 
-                    InmemoryFileResource fileResource = new InmemoryFileResource(new ByteArrayInputStream(baos.toByteArray()), file.filename() + ".xlsx");
-
-
                     HttpHeaders headers = new HttpHeaders();
-                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "parsed.xlsx\"");
+                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename() +"-parsed.xlsx\"");
 
-
-                    try {
-                        FileOutputStream fos = new FileOutputStream("parsed.xlsx");
-                        if (workbook != null) {
-                            workbook.write(fos);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    XlsxMultipartFile xlsxMultipartFile = new XlsxMultipartFile("parsed.xlsx", baos.toByteArray());
+                    XlsxMultipartFile xlsxMultipartFile = new XlsxMultipartFile(file.filename() +"-parsed.xlsx", baos.toByteArray());
 
                     LOGGER.info("returning resource");
 
-                    try {
-                        Path filepath = Paths.get("parsed.xlsx");
-                        UrlResource urlResource = new UrlResource(filepath.toUri());
 
-                    return new ResponseEntity<Resource>(urlResource, headers, HttpStatus.OK);
+                    return new ResponseEntity<Resource>(xlsxMultipartFile.getResource(), headers, HttpStatus.OK);
 
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                    finally {
-
-                    }
                 });
     }
 

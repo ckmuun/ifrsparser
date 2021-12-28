@@ -11,18 +11,9 @@ var multipleFileUploadError = document.querySelector('#multipleFileUploadError')
 var multipleFileUploadSuccess = document.querySelector('#multipleFileUploadSuccess');
 
 
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
+/*
+    ADAPTED FROM https://github.com/callicoder/spring-boot-file-upload-download-rest-api-example
+ */
 
 function uploadSingleFile(file) {
     var formData = new FormData();
@@ -60,6 +51,7 @@ function uploadSingleFile(file) {
 }
 
 
+// adapted from stackoverflow
 function _html5Saver(blob, fileName) {
     // to emulate click action
     // because we cannot save directly to client's computer due to security constraints
