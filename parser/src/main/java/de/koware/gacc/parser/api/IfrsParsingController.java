@@ -81,15 +81,32 @@ public class IfrsParsingController {
                     }
 
                     HttpHeaders headers = new HttpHeaders();
-                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename() +"-parsed.xlsx\"");
+                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename() + "-parsed.xlsx\"");
 
-                    XlsxMultipartFile xlsxMultipartFile = new XlsxMultipartFile(file.filename() +"-parsed.xlsx", baos.toByteArray());
+                    XlsxMultipartFile xlsxMultipartFile = new XlsxMultipartFile(file.filename() + "-parsed.xlsx", baos.toByteArray());
 
                     LOGGER.info("returning resource");
 
 
                     return new ResponseEntity<Resource>(xlsxMultipartFile.getResource(), headers, HttpStatus.OK);
 
+                });
+    }
+
+    @PostMapping("crop")
+    public Mono<ResponseEntity<Resource>> cropRelevantPages(@RequestPart("file") FilePart file) {
+        return this.parsingSvc.extractIfrsPages(Mono.just(file))
+                .map(pdf -> {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename() + "-parsed.xlsx\"");
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    try {
+                        pdf.save(baos);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    PdfMultipartFile croppedPdf = new PdfMultipartFile(file.filename() + "-cropped.pdf", baos.toByteArray());
+                    return new ResponseEntity<>(croppedPdf.getResource(), headers, HttpStatus.OK);
                 });
     }
 

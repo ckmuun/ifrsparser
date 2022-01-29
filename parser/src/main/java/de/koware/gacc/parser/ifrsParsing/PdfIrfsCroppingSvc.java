@@ -157,6 +157,7 @@ public class PdfIrfsCroppingSvc {
 
                     LOGGER.info("alternative chapter slide detection resulted in: {}", pageNrWithText.getKey());
                     chapterSlideNr = pageNrWithText.getKey();
+                    cropped.addPage(raw.getPage(chapterSlideNr));
                 }
             }
 
@@ -176,7 +177,7 @@ public class PdfIrfsCroppingSvc {
 
 
         // step1 use the pages with the mentions
-        int maxOffset = 15;
+        int maxOffset = 10;
 
         final HashMap<Integer, IfrsComponentType> irfsCompOnPage = new HashMap<>();
         int croppedPageCounter = 0;
@@ -186,9 +187,9 @@ public class PdfIrfsCroppingSvc {
             int mostMentions = pageAnalysis.getT2();
             int nextMostMentions = pageAnalysis.getT3();
 
-            if ((mostMentions == 0 && nextMostMentions == 0)
-                    || getDigitTextCharThreshValue(chapterSlideNr + offsetFromChaperSlide + 1, raw)) {
+            if (mostMentions == 0 && nextMostMentions == 0) {//|| getDigitTextCharThreshValue(chapterSlideNr + offsetFromChaperSlide + 1, raw)) {
                 maxOffset++;
+                LOGGER.info("filtering page nr: {}", chapterSlideNr + offsetFromChaperSlide);
                 continue;
             }
 
@@ -202,17 +203,14 @@ public class PdfIrfsCroppingSvc {
 
                 ifrsComponentsWithPages.get(pageAnalysis.getT1()).add(offsetFromChaperSlide + chapterSlideNr);
 
-                cropped.addPage(raw.getPage(offsetFromChaperSlide + chapterSlideNr));
+                cropped.addPage(raw.getPage(offsetFromChaperSlide + chapterSlideNr ));
                 croppedPageCounter++;
                 irfsCompOnPage.put(croppedPageCounter, pageAnalysis.getT1());
 
             }
         }
 
-        /*
-            TODO return tuple2 with PDF document and IfRS/PageINdex hashmap
-         */
-
+        LOGGER.info("cropped length: {}", cropped.getNumberOfPages());
         return Tuples.of(cropped, irfsCompOnPage);
     }
 

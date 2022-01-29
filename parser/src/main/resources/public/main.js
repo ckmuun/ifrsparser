@@ -5,10 +5,10 @@ var singleFileUploadInput = document.querySelector('#singleFileUploadInput');
 var singleFileUploadError = document.querySelector('#singleFileUploadError');
 var singleFileUploadSuccess = document.querySelector('#singleFileUploadSuccess');
 
-var multipleUploadForm = document.querySelector('#multipleUploadForm');
-var multipleFileUploadInput = document.querySelector('#multipleFileUploadInput');
-var multipleFileUploadError = document.querySelector('#multipleFileUploadError');
-var multipleFileUploadSuccess = document.querySelector('#multipleFileUploadSuccess');
+var singleUploadFormCrop = document.querySelector('#singleUploadFormCrop');
+var singleFileUploadInputCrop = document.querySelector('#singleFileUploadInputCrop');
+var singleFileUploadErrorCrop = document.querySelector('#singleFileUploadErrorCrop');
+var singleFileUploadSuccessCrop = document.querySelector('#singleFileUploadSuccessCrop');
 
 
 /*
@@ -28,7 +28,7 @@ function uploadSingleFile(file) {
         //  const response = JSON.parse(xhr.responseText);
         if (xhr.status == 200) {
             singleFileUploadError.style.display = "none";
-            singleFileUploadSuccess.innerHTML = "<p>File Uploaded Successfully.</p>"
+            singleFileUploadSuccess.innerHTML = "<p>File Uploaded Successfully. -- parsing</p>"
             singleFileUploadSuccess.style.display = "block";
 
           //  download("parsed.xlsx", xhr.response)
@@ -43,6 +43,40 @@ function uploadSingleFile(file) {
         if (this.readyState == 4 && this.status == 200) {
             var content = xhr.response;
             _html5Saver(content, 'parsed.xlsx');
+        }
+    };
+
+
+    xhr.send(formData);
+}
+function uploadSingleFileCrop(file) {
+    var formData = new FormData();
+    formData.append("file", file);
+
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "blob"
+    xhr.open("POST", "/api/v1/crop");
+
+    xhr.onload = function () {
+        console.log(xhr.responseText);
+        //  const response = JSON.parse(xhr.responseText);
+        if (xhr.status == 200) {
+            singleFileUploadErrorCrop.style.display = "none";
+            singleFileUploadSuccessCrop.innerHTML = "<p>File Uploaded Successfully -- cropping.</p>"
+            singleFileUploadSuccessCrop.style.display = "block";
+
+          //  download("parsed.xlsx", xhr.response)
+            _html5Saver(xhr.responseXML, 'cropped.pdf')
+
+        } else {
+            singleFileUploadSuccessCrop.style.display = "none";
+            //           singleFileUploadError.innerHTML = (response && response.message) || "Some Error Occurred";
+        }
+    }
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var content = xhr.response;
+            _html5Saver(content, 'cropped.pdf');
         }
     };
 
@@ -103,6 +137,16 @@ singleUploadForm.addEventListener('submit', function (event) {
         singleFileUploadError.style.display = "block";
     }
     uploadSingleFile(files[0]);
+    event.preventDefault();
+}, true);
+
+singleUploadFormCrop.addEventListener('submit', function (event) {
+    var files = singleFileUploadInputCrop.files;
+    if (files.length === 0) {
+        singleFileUploadErrorCrop.innerHTML = "Please select a file";
+        singleFileUploadErrorCrop.style.display = "block";
+    }
+    uploadSingleFileCrop(files[0]);
     event.preventDefault();
 }, true);
 

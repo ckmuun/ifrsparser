@@ -32,6 +32,24 @@
         </div>
     </div>
 </div>
+<div class="upload-container">
+    <div class="upload-header">
+        <h2>Simple PDF Cropper -- extracts IFRS-relevant pages from input PDF </h2>
+    </div>
+    <div class="upload-content">
+        <div class="single-upload">
+            <h3>Upload Single PDF File</h3>
+            <form id="singleUploadFormCrop" name="singleUploadForm">
+                <input id="singleFileUploadInputCrop" type="file" name="file" class="file-input" required/>
+                <button type="submit" class="primary submit-btn">Submit</button>
+            </form>
+            <div class="upload-response">
+                <div id="singleFileUploadErrorCrop"></div>
+                <div id="singleFileUploadSuccessCrop"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="main.js"></script>
 </body>
 </html>

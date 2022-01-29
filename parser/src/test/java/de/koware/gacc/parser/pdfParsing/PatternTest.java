@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -78,6 +79,8 @@ public class PatternTest {
         Pattern guvPattern = Pattern.compile("(konzern)?[-]?gewinn-[ ]*und[- ]*verlust[-]?rechnung");
 
         assert guvPattern.matcher("KONZERN-GEWINN- UND VERLUSTRECHNUNG".toLowerCase()).find();
+        assert guvPattern.matcher("Konzern-Gewinn- und Verlustrechnung".toLowerCase()).find();
+
 
         String guv = "konzern\u00ADgewinn\u00AD und verlustrechnung";
         String guvRep = guv.replaceAll("\u00AD", "-");
